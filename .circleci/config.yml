@@ -60,7 +60,7 @@ jobs:
           command: |
             cd frontend
             npm install
-            nm run test
+            npm run test
   test-backend:
     docker:
       - image: circleci/node:13.8.0
@@ -73,7 +73,7 @@ jobs:
           command: |
             cd backend
             npm install
-            nm run test
+            npm run test
 
 workflows:
   udacity_project:

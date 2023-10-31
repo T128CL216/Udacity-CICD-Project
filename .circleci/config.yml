@@ -20,7 +20,7 @@ jobs:
     steps:
       - checkout
       - run: 
-          name: BackendBuild
+          name: FrontEnd Build
           command: |
             cd frontend
             npm install
@@ -31,7 +31,7 @@ jobs:
     steps:
       - checkout
       - run: 
-          name: BackendBuild
+          name: Backend Build
           command: |
             cd backend
             npm install

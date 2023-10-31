@@ -19,23 +19,26 @@ jobs:
       - image: circleci/node:13.8.0
     steps:
       - checkout
-      - run: |
-          cd frontend
-          npm install
-          npm run build
+      - run: 
+          name: BackendBuild
+          command: |
+            cd frontend
+            npm install
+            npm run build
   build_backend:
     docker:
       - image: circleci/node:13.8.0
     steps:
       - checkout
-      - run: |
-          cd backend
-          npm install
-          npm run build
+      - run: 
+          name: BackendBuild
+          command: |
+            cd backend
+            npm install
+            npm run build
 
 workflows:
   udacity_project:
     jobs:
       - build_frontend
       - build_backend
-

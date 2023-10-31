@@ -4,41 +4,83 @@ orbs:
   aws-cli: circleci/aws-cli@2.0.3
 
 commands:
+  destroy-environment:
+      description: Destroy back-end and front-end cloudformation stacks given a workflow ID.
 
-  destroy_environment:
-    steps:
-      - run:
-          name: Destroy environment
-          when: on_fail
-          command: |
-            aws cloudformation delete-stack --stack-name UdacityCICD-Project-${CIRCLE_WORKFLOW_ID:0:5}
+      steps:
+        - run:
+            name: Destroy environments
+            when: on_fail
+            command: |
+              aws cloudformation delete-stack --stack-name UdacityCICD-Project-FrontEnd-${CIRCLE_WORKFLOW_ID:0:5}
+              aws cloudformation delete-stack --stack-name UdacityCICD-Project-BackEnd-${CIRCLE_WORKFLOW_ID:0:5}
 
 jobs:
-  build_frontend:
+  build-frontend:
     docker:
       - image: circleci/node:13.8.0
     steps:
       - checkout
+      - restore_cache:
+          keys: [frontend-build]
       - run: 
-          name: FrontEnd Build
+          name: Build front-end
           command: |
             cd frontend
             npm install
             npm run build
-  build_backend:
+      - save_cache:
+          paths: [frontend/node_modules]
+          key: frontend-build
+  build-backend:
     docker:
       - image: circleci/node:13.8.0
     steps:
       - checkout
+      - restore_cache:
+          keys: [backend-build]
       - run: 
-          name: Backend Build
+          name: Back-end build
           command: |
             cd backend
             npm install
             npm run build
+      - save_cache:
+          paths: [backend/node_modules]
+          key: backend-build
+  test-frontend:
+    docker:
+      - image: circleci/node:13.8.0
+    steps:
+      - checkout
+      - restore_cache:
+          keys: [frontend-build]
+      - run: 
+          name: Run FrontEnd Test
+          command: |
+            cd frontend
+            npm install
+            nm run test
+  test-backend:
+    docker:
+      - image: circleci/node:13.8.0
+    steps:
+      - checkout
+      - restore_cache:
+          keys: [backend-build]
+      - run: 
+          name: Run BackEnd Test
+          command: |
+            cd backend
+            npm install
+            nm run test
 
 workflows:
   udacity_project:
     jobs:
-      - build_frontend
-      - build_backend
+      - build-frontend
+      - build-backend
+      - test-frontend:
+          requires: [build-frontend]
+      - test-backend:
+          requires: [build-backend]
